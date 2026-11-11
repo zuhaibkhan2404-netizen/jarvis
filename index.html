@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#060a13">
+  <title>Jarvis · Personal Assistant</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%234f8cff'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%2322d3ee'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login" class="login">
+  <form id="loginForm" class="login-card" autocomplete="off">
+    <div class="orb xl"></div>
+    <h1>JARVIS</h1>
+    <p class="muted">Personal Assistant &middot; sirf manager ke liye</p>
+    <input id="pinInput" type="password" inputmode="numeric" placeholder="PIN daalo" required>
+    <button class="btn primary block" type="submit">Unlock</button>
+    <p id="loginError" class="err" hidden></p>
+  </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="shell" hidden>
+
+  <aside class="side">
+    <div class="brand"><span class="orb"></span><span>JARVIS</span></div>
+    <nav class="nav-list">
+      <button class="nav active" data-view="assistant">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></svg>
+        <span>Assistant</span>
+      </button>
+      <button class="nav" data-view="tasks">
+        <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Tasks</span><b id="navBadge" class="badge" hidden>0</b>
+      </button>
+      <button class="nav" data-view="team">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Team</span>
+      </button>
+      <a class="nav" id="sheetLink" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        <span>Sheet</span>
+      </a>
+    </nav>
+    <button class="nav logout" id="logoutBtn">
+      <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span>Lock</span>
+    </button>
+  </aside>
+
+  <main class="main">
+
+    <!-- ===== Assistant ===== -->
+    <section id="view-assistant" class="view">
+      <header class="view-head">
+        <div class="head-title">
+          <span id="headOrb" class="orb"></span>
+          <div>
+            <h2>Assistant</h2>
+            <p id="statusLine" class="muted small">Tayyar hoon</p>
+          </div>
+        </div>
+        <div class="head-actions">
+          <label class="switch" title="Jawab bol kar sunao">
+            <input type="checkbox" id="speakToggle"><span class="track"></span><span class="switch-label">Voice reply</span>
+          </label>
+          <button class="btn ghost sm" id="clearChat">Clear</button>
+        </div>
+      </header>
+
+      <div id="configBanner" class="banner warn" hidden>
+        <b>Setup baqi hai:</b> <code>config.js</code> mein <code>N8N_BASE</code> apne n8n ke URL se badlo, phir page refresh karo.
+      </div>
+
+      <div id="log" class="log"></div>
+
+      <div class="composer-wrap">
+        <div id="chips" class="chips"></div>
+
+        <div id="recBar" class="rec-bar" hidden>
+          <span class="rec-dot"></span>
+          <canvas id="wave" width="300" height="40"></canvas>
+          <span id="recTimer" class="mono">0:00</span>
+          <button class="btn ghost sm" id="recCancel" type="button">Cancel</button>
+          <button class="btn primary sm" id="recStop" type="button">Bhejo</button>
+        </div>
+
+        <form id="composer" class="composer">
+          <button type="button" id="micBtn" class="icon-btn mic" title="Voice record karo">
+            <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <input id="textInput" type="text" placeholder="Task assign karo, email bhejo, ya team ko msg karo..." autocomplete="off">
+          <button type="submit" id="sendBtn" class="icon-btn send" title="Bhejo">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== Tasks ===== -->
+    <section id="view-tasks" class="view" hidden>
+      <header class="view-head">
+        <div class="head-title">
+          <div>
+            <h2>Tasks</h2>
+            <p class="muted small">Kisko kya assign hua, deadline aur status</p>
+          </div>
+        </div>
+        <div class="head-actions">
+          <button class="btn ghost sm" id="refreshTasks">
+            <svg viewBox="0 0 24 24" class="spin-target"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh
+          </button>
+          <button class="btn primary sm" id="newTaskBtn">+ Naya task</button>
+        </div>
+      </header>
+
+      <div id="taskBanner" class="banner" hidden></div>
+
+      <div class="stats" id="stats"></div>
+
+      <div class="toolbar">
+        <div class="filters" id="filters"></div>
+        <input id="searchInput" class="search" type="search" placeholder="Naam ya task dhoondo...">
+      </div>
+
+      <div id="taskList" class="task-list"></div>
+    </section>
+
+    <!-- ===== Team ===== -->
+    <section id="view-team" class="view" hidden>
+      <header class="view-head">
+        <div class="head-title">
+          <div>
+            <h2>Team</h2>
+            <p class="muted small">Jin ko aap task assign kar sakte hain</p>
+          </div>
+        </div>
+        <div class="head-actions">
+          <button class="btn ghost sm" id="refreshTeam">Refresh</button>
+        </div>
+      </header>
+      <div id="teamBanner" class="banner" hidden></div>
+      <div id="teamGrid" class="team-grid"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toasts" class="toasts"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
