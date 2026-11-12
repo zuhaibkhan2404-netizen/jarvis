@@ -157,7 +157,9 @@
     'Ali ko kal shaam 5 baje tak Karachi Electric ka bill report bhejne ka task do',
     'Sara ko email bhejo ke kal 11 baje meeting hai',
     'Poori team ko msg karo: Friday ko office band hai',
-    'Hamza ko parso dopahar 2 baje tak client quotation bhejne ka task do'
+    'Hamza ko parso dopahar 2 baje tak client quotation bhejne ka task do',
+    'Ali ke kitne tasks pending hain?',
+    'Client ko late delivery ka polite apology email draft karke do'
   ];
 
   function initChat() {
@@ -219,12 +221,19 @@
       pushMsg('bot', 'config.js mein N8N_BASE abhi set nahi hai. Usay apne n8n URL se badlo.', { error: true });
       return;
     }
+    // pichli baatein, taake Jarvis context samjhe (current message se pehle ki)
+    const history = state.chat
+      .filter(m => !m.error)
+      .slice(-6)
+      .map(m => ({ role: m.role === 'me' ? 'user' : 'assistant', text: String(m.text || '').slice(0, 500) }));
+
     let voiceMsg = null;
     if (text) pushMsg('me', text);
     if (audioBlob) voiceMsg = pushMsg('me', '🎤 Voice message (transcribe ho raha hai...)');
 
     const fd = new FormData();
     fd.append('pin', state.pin);
+    fd.append('history', JSON.stringify(history));
     if (text) fd.append('text', text);
     if (audioBlob) {
       const ext = (audioBlob.type || '').includes('mp4') ? 'mp4' : 'webm';
