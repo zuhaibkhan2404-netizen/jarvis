@@ -57,10 +57,11 @@
   function initials(name) {
     return String(name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
   }
+  const AVATAR_COLORS = ['#66752b', '#7a6a3a', '#4f6f52', '#8a5f45', '#5d6b78', '#7a5470'];
   function colorFor(name) {
     let x = 0;
-    for (const c of String(name)) x = (x * 31 + c.charCodeAt(0)) % 360;
-    return 'hsl(' + x + ' 55% 42%)';
+    for (const c of String(name)) x = (x * 31 + c.charCodeAt(0)) % 997;
+    return AVATAR_COLORS[x % AVATAR_COLORS.length];
   }
   function avatar(name) {
     return h('div', { class: 'avatar', style: 'background:' + colorFor(name), text: initials(name) });
@@ -383,7 +384,7 @@
         an.getByteFrequencyData(data);
         g.clearRect(0, 0, w, hgt);
         const bars = Math.min(data.length, Math.floor(w / 7));
-        g.fillStyle = '#fb7185';
+        g.fillStyle = '#b3443a';
         for (let i = 0; i < bars; i++) {
           const v = data[i] / 255;
           const bh = Math.max(3, v * hgt);
